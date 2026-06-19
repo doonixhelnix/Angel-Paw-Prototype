@@ -1,0 +1,426 @@
+
+## IMPORTANTE
+
+NÃO reescreva, simplifique ou altere nenhuma regra do backend.
+
+NÃO modifique cálculos, funções, estruturas de dados ou lógica do diagnóstico.
+
+NÃO troque armazenamento em memória.
+
+NÃO remova etapas existentes.
+
+NÃO crie novos algoritmos.
+
+O backend Python já está pronto e funcional.
+
+Seu trabalho é SOMENTE criar a camada visual (frontend) e conectar os botões às funções já existentes.
+
+Todo o funcionamento do sistema deve permanecer exatamente como está.
+
+---
+
+# IDENTIDADE VISUAL
+
+Tema:
+
+* Lilás bem claro (#F6F2FF)
+* Branco
+* Roxo suave (#A98BEA)
+* Cartões arredondados
+* Aparência delicada e elegante
+* Visual semelhante a aplicativo moderno
+* Muito espaço em branco
+* Sombras suaves
+* Ícones lineares
+
+Referência:
+
+Angel Paw
+
+Logo:
+
+Círculo lilás com patinha felina branca com asas.
+
+Fonte:
+
+* Playfair Display (título)
+* Poppins (textos)
+
+Jamais utilizar aparência genérica.
+
+O aplicativo deve transmitir:
+
+* Cuidado
+* Serenidade
+* Saúde
+* Medicina veterinária
+
+---
+
+# TELA INICIAL
+
+Manter exatamente como a imagem de referência.
+
+Parte superior:
+
+Logo Angel Paw.
+
+Texto:
+
+"Assistente veterinário para triagem de doenças em cães e gatos."
+
+Dois cartões:
+
+### Sou Tutor
+
+Preencha a anamnese do seu pet e envie ao veterinário.
+
+### Sou Médico Veterinário
+
+Acesse anamneses recebidas e gerencie seus pacientes.
+
+Rodapé:
+
+"Aplicativo de triagem desenvolvido por Abner Augusto"
+
+---
+
+# ÁREA DO TUTOR
+
+OBS:
+
+O tutor NÃO possui cadastro.
+
+O tutor entra diretamente.
+
+Ele só precisa informar o ID do médico veterinário para enviar a anamnese.
+
+Não criar login de tutor.
+
+---
+
+# TELA DE IDENTIFICAÇÃO DO PET
+
+Cartão branco central.
+
+Campos:
+
+* Espécie
+* Nome do paciente
+* Idade (anos)
+* Idade (meses)
+* Raça
+* Dias com sintomas
+* Vacinação
+
+Botão:
+
+Continuar
+
+Visual:
+
+Campos arredondados e suaves.
+
+---
+
+# QUESTIONÁRIO DE SINTOMAS
+
+Uma pergunta por vez.
+
+Cartão central.
+
+Ícone veterinário no topo.
+
+Pergunta grande.
+
+Botões:
+
+Sim
+
+Não
+
+Barra de progresso mostrando quantas perguntas faltam.
+
+Visual calmo e limpo.
+
+---
+
+# RESUMO DO DIAGNÓSTICO
+
+Cartão branco.
+
+Exibir:
+
+Probabilidade (%)
+
+Confiança:
+
+* Alta
+* Moderada
+* Baixa
+
+Interpretação.
+
+Urgência.
+
+Sinais positivos.
+
+Sinais negativos.
+
+Usar cores:
+
+Verde → baixo risco.
+
+Amarelo → atenção.
+
+Vermelho → emergência.
+
+Botões:
+
+Enviar anamnese
+
+Revisar dados
+
+Cancelar
+
+NÃO alterar os cálculos do backend.
+
+Somente exibir.
+
+---
+
+# REVISAR DADOS
+
+Cartões para:
+
+Nome.
+
+Idade.
+
+Raça.
+
+Dias com sintomas.
+
+Vacinação.
+
+Botão:
+
+Salvar alterações.
+
+Continuar para resumo.
+
+---
+
+# LOGIN DO MÉDICO
+
+Tela elegante.
+
+Logo Angel Paw menor.
+
+Campos:
+
+ID do médico.
+
+Senha.
+
+Botões:
+
+Entrar
+
+Cadastrar médico
+
+---
+
+# CADASTRO DO MÉDICO
+
+Campos:
+
+Nome.
+
+Senha.
+
+Botão:
+
+Cadastrar.
+
+Após cadastro:
+
+Mostrar em destaque:
+
+"Seu ID é: XXXXX"
+
+Cartão lilás suave.
+
+Botão:
+
+Ir para login.
+
+---
+
+# MENU PRINCIPAL DO MÉDICO
+
+Mostrar seis cartões:
+
+### Ver Anamneses
+
+### Adicionar Notas
+
+### Buscar Anamnese
+
+### Exportar PDF
+
+### Relatório Estatístico
+
+### Sair
+
+Visual semelhante ao menu principal.
+
+---
+
+# VER ANAMNESES
+
+Cada anamnese deve ser um cartão.
+
+Mostrar:
+
+Nome do paciente.
+
+Espécie.
+
+Raça.
+
+Idade.
+
+Vacinação.
+
+Dias de sintomas.
+
+Status.
+
+Probabilidade.
+
+Confiança.
+
+Urgência.
+
+Sinais positivos.
+
+Sinais negativos.
+
+Notas do médico (se existirem).
+
+Data da análise.
+
+Cartões separados.
+
+Nunca mostrar tudo em texto corrido.
+
+---
+
+# ADICIONAR NOTAS
+
+Lista das anamneses.
+
+Ao selecionar uma:
+
+Grande caixa de texto.
+
+Botão:
+
+Salvar nota.
+
+Atualizar status para:
+
+Analisada.
+
+Mostrar mensagem de sucesso.
+
+---
+
+# BUSCAR ANAMNESE
+
+Caixas grandes:
+
+Buscar por nome.
+
+Buscar por status.
+
+Listar todas.
+
+Resultados em cartões.
+
+---
+
+# EXPORTAR PDF
+
+Lista das anamneses.
+
+Botão:
+
+Exportar PDF.
+
+Mostrar:
+
+"PDF gerado com sucesso."
+
+Não alterar a geração do PDF existente.
+
+---
+
+# RELATÓRIO ESTATÍSTICO
+
+Criar uma tela bonita com cartões.
+
+Mostrar:
+
+Total de anamneses.
+
+Pendentes.
+
+Analisadas.
+
+Probabilidade média.
+
+Probabilidade máxima.
+
+Probabilidade mínima.
+
+Confiança alta.
+
+Confiança moderada.
+
+Confiança baixa.
+
+Emergências.
+
+Avaliação rápida.
+
+Sem urgência.
+
+Raças mais frequentes.
+
+Idade média.
+
+Usar gráficos simples e cartões lilás.
+
+---
+
+# BARRA INFERIOR
+
+Ícones lineares.
+
+Lilás.
+
+Suave.
+
+---
+
+# REGRA MAIS IMPORTANTE
+
+VOCÊ NÃO DEVE REFAZER O SISTEMA.
+
+VOCÊ NÃO DEVE ALTERAR O BACKEND.
+
+VOCÊ NÃO DEVE MODIFICAR A LÓGICA.
+
+VOCÊ DEVE SOMENTE CRIAR O VISUAL COMPLETO DO APP UTILIZANDO O ESTILO ANGEL PAW DA IMAGEM DE REFERÊNCIA E CONECTAR CADA BOTÃO ÀS FUNÇÕES PYTHON JÁ EXISTENTES.

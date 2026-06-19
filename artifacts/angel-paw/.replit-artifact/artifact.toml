@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "Angel Paw"
+version = "1.0.0"
+id = "artifacts/angel-paw"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 24071
+
+[services.development]
+run = "pnpm --filter @workspace/angel-paw run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/angel-paw", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/angel-paw", "run", "serve" ]
+
+[services.env]
+PORT = "24071"
+BASE_PATH = "/"

@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "2EO46RTSxFmg85Y3Rh2wi"
+uri = "file://artifacts/angel-paw/assets/images/icon.png"
+type = "image"
+title = "angel paw icon"
