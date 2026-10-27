@@ -1,16 +1,15 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { KeyboardAwareScrollViewCompat } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { APButton } from "@/components/APButton";
 import { APCard } from "@/components/APCard";
@@ -36,6 +35,13 @@ export default function IdentificationScreen() {
   const [diasSintomas, setDiasSintomas] = useState("");
   const [vacinacao, setVacinacao] = useState<Vacinacao>("C");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // O scroll só é ligado quando o conteúdo realmente não cabe na área
+  // visível (tela pequena, ou teclado aberto — a lib de teclado aumenta
+  // o conteúdo enquanto ele está aberto). Quando cabe, a tela fica fixa.
+  const [alturaVisivel, setAlturaVisivel] = useState(0);
+  const [alturaConteudo, setAlturaConteudo] = useState(0);
+  const precisaRolar = alturaConteudo > alturaVisivel + 1;
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -83,13 +89,21 @@ export default function IdentificationScreen() {
           <Feather name="arrow-left" size={22} color={colors.primary} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.foreground }]}>Identificação do Pet</Text>
-        <View style={{ width: 36 }} />
+        <View style={[styles.pawBadge, { backgroundColor: colors.primary + "18" }]}>
+          <MaterialCommunityIcons name="paw" size={16} color={colors.primary} />
+        </View>
       </View>
 
-      <KeyboardAwareScrollViewCompat
-        contentContainerStyle={[styles.scroll, { paddingBottom: botPad + 32 }]}
+      <KeyboardAwareScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: botPad + 16 }]}
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
+        scrollEnabled={precisaRolar}
+        bounces={false}
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}
+        onLayout={(e) => setAlturaVisivel(e.nativeEvent.layout.height)}
+        onContentSizeChange={(_, h) => setAlturaConteudo(h)}
       >
         <APCard style={styles.card}>
           <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Espécie</Text>
@@ -107,8 +121,8 @@ export default function IdentificationScreen() {
                   },
                 ]}
               >
-                <Feather
-                  name={opt.icon}
+                <MaterialCommunityIcons
+                  name={opt.value === "cao" ? "dog" : "cat"}
                   size={16}
                   color={especie === opt.value ? colors.primaryForeground : colors.mutedForeground}
                 />
@@ -131,6 +145,7 @@ export default function IdentificationScreen() {
             onChangeText={setNome}
             error={errors.nome}
             containerStyle={styles.field}
+            icon={<MaterialCommunityIcons name="paw" size={18} color={colors.primary} />}
           />
 
           <View style={[styles.row, styles.field]}>
@@ -161,6 +176,13 @@ export default function IdentificationScreen() {
             onChangeText={setRaca}
             error={errors.raca}
             containerStyle={styles.field}
+            icon={
+              <MaterialCommunityIcons
+                name={especie === "cao" ? "dog-side" : "cat"}
+                size={18}
+                color={colors.primary}
+              />
+            }
           />
 
           <APInput
@@ -171,12 +193,13 @@ export default function IdentificationScreen() {
             keyboardType="numeric"
             error={errors.diasSintomas}
             containerStyle={styles.field}
+            icon={<Feather name="calendar" size={17} color={colors.primary} />}
           />
 
-          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 8 }]}>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 2 }]}>
             Vacinação
           </Text>
-          <View style={styles.optionRow}>
+          <View style={[styles.optionRow, { marginBottom: 0 }]}>
             {vacOptions.map((opt) => (
               <Pressable
                 key={opt.value}
@@ -204,7 +227,7 @@ export default function IdentificationScreen() {
         </APCard>
 
         <APButton title="Continuar" onPress={handleContinuar} style={styles.btn} />
-      </KeyboardAwareScrollViewCompat>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -224,25 +247,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  pawBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   headerTitle: {
     fontFamily: "PlayfairDisplay_700Bold",
     fontSize: 18,
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    gap: 20,
+    paddingTop: 14,
+    gap: 14,
   },
   card: {},
   sectionLabel: {
     fontFamily: "Poppins_500Medium",
     fontSize: 13,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   optionRow: {
     flexDirection: "row",
     gap: 10,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   optionChip: {
     flexDirection: "row",
@@ -256,7 +286,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   field: {
-    marginBottom: 14,
+    marginBottom: 10,
   },
   row: {
     flexDirection: "row",

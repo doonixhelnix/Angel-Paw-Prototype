@@ -4,7 +4,6 @@ import React from "react";
 import {
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -30,7 +29,7 @@ function MenuItem({ icon, title, subtitle, color, onPress }: MenuItemProps) {
       onPress={onPress}
       style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, flex: 1 }]}
     >
-      <APCard style={styles.menuCard} padding={16}>
+      <APCard style={styles.menuCard} padding={14}>
         <View style={[styles.menuIcon, { backgroundColor: color + "22" }]}>
           <Feather name={icon} size={22} color={color} />
         </View>
@@ -39,6 +38,12 @@ function MenuItem({ icon, title, subtitle, color, onPress }: MenuItemProps) {
       </APCard>
     </Pressable>
   );
+}
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
 }
 
 export default function VetMenuScreen() {
@@ -55,6 +60,59 @@ export default function VetMenuScreen() {
     logoutMedico();
     router.replace("/");
   }
+
+  const menuItems: MenuItemProps[] = [
+    {
+      icon: "file-text",
+      title: "Ver Anamneses",
+      subtitle: "Fichas recebidas",
+      color: colors.primary,
+      onPress: () => router.push("/vet/anamneses"),
+    },
+    {
+      icon: "edit-3",
+      title: "Adicionar Notas",
+      subtitle: "Anotações clínicas",
+      color: colors.success,
+      onPress: () => router.push("/vet/notes"),
+    },
+    {
+      icon: "send",
+      title: "Enviar Notificação",
+      subtitle: "Mensagem para o tutor",
+      color: "#9B7EDE",
+      onPress: () => router.push("/vet/notify"),
+    },
+    {
+      icon: "search",
+      title: "Buscar Anamnese",
+      subtitle: "Por nome ou status",
+      color: colors.warning,
+      onPress: () => router.push("/vet/search"),
+    },
+    {
+      icon: "download",
+      title: "Exportar PDF",
+      subtitle: "Gerar relatório",
+      color: "#6B9FEA",
+      onPress: () => router.push("/vet/anamneses?mode=export"),
+    },
+    {
+      icon: "bar-chart-2",
+      title: "Relatório Estatístico",
+      subtitle: "Visão geral",
+      color: "#EA9F6B",
+      onPress: () => router.push("/vet/report"),
+    },
+    {
+      icon: "log-out",
+      title: "Sair",
+      subtitle: "Encerrar sessão",
+      color: colors.danger,
+      onPress: handleSair,
+    },
+  ];
+  const linhas = chunk(menuItems, 2);
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -92,55 +150,18 @@ export default function VetMenuScreen() {
         </View>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: botPad + 24 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.grid}>
-          <MenuItem
-            icon="file-text"
-            title="Ver Anamneses"
-            subtitle="Fichas recebidas"
-            color={colors.primary}
-            onPress={() => router.push("/vet/anamneses")}
-          />
-          <MenuItem
-            icon="edit-3"
-            title="Adicionar Notas"
-            subtitle="Anotações clínicas"
-            color={colors.success}
-            onPress={() => router.push("/vet/notes")}
-          />
-          <MenuItem
-            icon="search"
-            title="Buscar Anamnese"
-            subtitle="Por nome ou status"
-            color={colors.warning}
-            onPress={() => router.push("/vet/search")}
-          />
-          <MenuItem
-            icon="download"
-            title="Exportar PDF"
-            subtitle="Gerar relatório"
-            color="#6B9FEA"
-            onPress={() => router.push("/vet/anamneses?mode=export")}
-          />
-          <MenuItem
-            icon="bar-chart-2"
-            title="Relatório Estatístico"
-            subtitle="Visão geral"
-            color="#EA9F6B"
-            onPress={() => router.push("/vet/report")}
-          />
-          <MenuItem
-            icon="log-out"
-            title="Sair"
-            subtitle="Encerrar sessão"
-            color={colors.danger}
-            onPress={handleSair}
-          />
+      <View style={[styles.content, { paddingBottom: botPad + 16 }]}>
+        <View style={styles.gridWrap}>
+          {linhas.map((linha, i) => (
+            <View key={i} style={styles.gridRow}>
+              {linha.map((item) => (
+                <MenuItem key={item.title} {...item} />
+              ))}
+              {linha.length === 1 && <View style={styles.gridSpacer} />}
+            </View>
+          ))}
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -183,11 +204,14 @@ const styles = StyleSheet.create({
   statNumber: { fontFamily: "Poppins_700Bold", fontSize: 22 },
   statLabel: { fontFamily: "Poppins_400Regular", fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, marginHorizontal: 8 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 14 },
+  content: { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
+  gridWrap: { flex: 1, gap: 12 },
+  gridRow: { flex: 1, flexDirection: "row", gap: 14 },
+  gridSpacer: { flex: 1 },
   menuCard: {
-    gap: 8,
-    minHeight: 110,
+    flex: 1,
+    gap: 6,
+    justifyContent: "center",
   },
   menuIcon: {
     width: 40,

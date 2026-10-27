@@ -315,6 +315,35 @@ export function extrairFatoresRisco(
   return fatores;
 }
 
+export interface RespostaExibicao {
+  pergunta: string;
+  resposta: string;
+  positivo: boolean;
+}
+
+/**
+ * Converte o dicionário bruto de respostas do questionário (ex: { vomitos: true, febre: false })
+ * numa lista pronta para exibição, na ordem em que as perguntas foram feitas ao tutor.
+ */
+export function formatarRespostasQuestionario(
+  especie: EspeciePet,
+  respostas: Record<string, boolean | string>
+): RespostaExibicao[] {
+  const perguntas = getPerguntasPorEspecie(especie);
+
+  return perguntas.map((p) => {
+    const valor = respostas[p.chave];
+
+    if (p.tipo === "sexo") {
+      const texto = valor === "macho" ? "Macho" : valor === "femea" ? "Fêmea" : "Não informado";
+      return { pergunta: p.pergunta, resposta: texto, positivo: true };
+    }
+
+    const positivo = !!valor;
+    return { pergunta: p.pergunta, resposta: positivo ? "Sim" : "Não", positivo };
+  });
+}
+
 export function extrairSintomas(
   especie: EspeciePet,
   respostas: Record<string, boolean | string>

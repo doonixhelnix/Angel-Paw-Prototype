@@ -2,11 +2,13 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Image,
   Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -22,12 +24,17 @@ import {
   PerguntaQuestionario,
 } from "@/lib/diseases";
 
+const CAO_DOENTE = require("@/assets/images/cao-doente.png");
+const GATO_DOENTE = require("@/assets/images/gato-doente.png");
+
 export default function QuestionnaireScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
   const { sessionTutor, setRespostas, setResultado } = useApp();
+  const { height: windowHeight } = useWindowDimensions();
+  const compact = windowHeight < 700;
 
   const petDados = sessionTutor.petDados;
   const especie = petDados?.especie ?? "cao";
@@ -96,22 +103,25 @@ export default function QuestionnaireScreen() {
         <ProgressBar current={currentIndex + 1} total={total} />
       </View>
 
-      <View style={styles.content}>
-        <View
-          style={[
-            styles.iconCircle,
-            { backgroundColor: colors.secondary },
-          ]}
-        >
-          <Feather name="activity" size={32} color={colors.primary} />
-        </View>
+      <View style={[styles.content, compact && { paddingTop: 16, gap: 14 }]}>
+        <Image
+          source={especie === "cao" ? CAO_DOENTE : GATO_DOENTE}
+          style={[styles.petImage, compact && { width: 130, height: 92 }]}
+          resizeMode="contain"
+        />
 
         <Text style={[styles.questionLabel, { color: colors.mutedForeground }]}>
           Pergunta {currentIndex + 1} de {total}
         </Text>
 
         <APCard style={styles.questionCard}>
-          <Text style={[styles.questionText, { color: colors.foreground }]}>
+          <Text
+            style={[
+              styles.questionText,
+              { color: colors.foreground },
+              compact && { fontSize: 16, lineHeight: 23 },
+            ]}
+          >
             {perguntaAtual.pergunta}
           </Text>
         </APCard>
@@ -123,9 +133,10 @@ export default function QuestionnaireScreen() {
               style={({ pressed }) => [
                 styles.answerBtn,
                 {
-                  backgroundColor: colors.success,
+                  backgroundColor: colors.primary,
                   opacity: pressed ? 0.85 : 1,
                   borderRadius: 16,
+                  paddingVertical: compact ? 14 : 18,
                 },
               ]}
             >
@@ -138,14 +149,17 @@ export default function QuestionnaireScreen() {
               style={({ pressed }) => [
                 styles.answerBtn,
                 {
-                  backgroundColor: colors.danger,
+                  backgroundColor: colors.secondary,
+                  borderWidth: 1.5,
+                  borderColor: colors.border,
                   opacity: pressed ? 0.85 : 1,
                   borderRadius: 16,
+                  paddingVertical: compact ? 14 : 18,
                 },
               ]}
             >
-              <Feather name="x" size={22} color="#fff" />
-              <Text style={styles.answerBtnText}>Não</Text>
+              <Feather name="x" size={22} color={colors.primary} />
+              <Text style={[styles.answerBtnText, { color: colors.primary }]}>Não</Text>
             </Pressable>
           </View>
         ) : (
@@ -161,6 +175,7 @@ export default function QuestionnaireScreen() {
                   backgroundColor: sexoSelected === "macho" ? colors.primary : colors.secondary,
                   opacity: pressed ? 0.85 : 1,
                   borderRadius: 16,
+                  paddingVertical: compact ? 14 : 18,
                 },
               ]}
             >
@@ -181,6 +196,7 @@ export default function QuestionnaireScreen() {
                   backgroundColor: sexoSelected === "femea" ? colors.primary : colors.secondary,
                   opacity: pressed ? 0.85 : 1,
                   borderRadius: 16,
+                  paddingVertical: compact ? 14 : 18,
                 },
               ]}
             >
@@ -226,12 +242,9 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     gap: 20,
   },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
+  petImage: {
+    width: 200,
+    height: 140,
   },
   questionLabel: {
     fontFamily: "Poppins_400Regular",

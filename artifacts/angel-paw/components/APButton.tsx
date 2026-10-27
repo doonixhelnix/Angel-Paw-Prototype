@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
+  StyleProp,
   Text,
   ViewStyle,
 } from "react-native";
@@ -14,7 +15,7 @@ interface Props {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   loading?: boolean;
   disabled?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   fullWidth?: boolean;
 }
 
@@ -69,12 +70,7 @@ export function APButton({
       {loading ? (
         <ActivityIndicator color={textColorMap[variant]} size="small" />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            { color: textColorMap[variant] },
-          ]}
-        >
+        <Text style={[styles.text, { color: textColorMap[variant] }]}>
           {title}
         </Text>
       )}

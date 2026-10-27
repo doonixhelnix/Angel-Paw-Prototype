@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { KeyboardAwareScrollViewCompat } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { APButton } from "@/components/APButton";
 import { APCard } from "@/components/APCard";
@@ -26,6 +26,9 @@ export default function VetRegisterScreen() {
 
   const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
+  const [crmv, setCrmv] = useState("");
+  const [contato, setContato] = useState("");
+  const [localTrabalho, setLocalTrabalho] = useState("");
   const [loading, setLoading] = useState(false);
   const [newId, setNewId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,13 +37,45 @@ export default function VetRegisterScreen() {
     const e: Record<string, string> = {};
     if (!nome.trim()) e.nome = "Informe seu nome";
     if (senha.length < 3) e.senha = "Senha deve ter ao menos 3 caracteres";
+    if (!crmv.trim()) e.crmv = "Informe seu CRMV";
+    if (!contato.trim()) e.contato = "Informe um telefone ou e-mail";
+    if (!localTrabalho.trim()) e.localTrabalho = "Informe onde você atua";
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
     setLoading(true);
-    const id = await cadastrarMedico(nome.trim(), senha);
+    const resultado = await cadastrarMedico(
+      nome.trim(),
+      senha,
+      crmv.trim(),
+      contato.trim(),
+      localTrabalho.trim()
+    );
     setLoading(false);
-    setNewId(id);
+
+    if (resultado.status === "ok") {
+      setNewId(resultado.id);
+      return;
+    }
+
+    // Cada problema aparece no campo certo, em vez de uma mensagem solta.
+    const porCampo: Record<string, [string, string]> = {
+      crmv_invalido: ["crmv", "CRMV inválido. Use o formato UF-NÚMERO, ex: SP-12345."],
+      crmv_duplicado: [
+        "crmv",
+        "Já existe um pedido ou conta ativa com esse CRMV. Se foi um engano, fale com o administrador.",
+      ],
+      contato_invalido: [
+        "contato",
+        "Informe um e-mail válido ou um telefone com DDD, ex: (11) 91234-5678.",
+      ],
+      dados_incompletos: ["geral", "Preencha todos os campos para enviar o pedido."],
+    };
+    const [campo, mensagem] = porCampo[resultado.status] ?? [
+      "geral",
+      "Não foi possível enviar o pedido.",
+    ];
+    setErrors((prev) => ({ ...prev, [campo]: mensagem }));
   }
 
   if (newId) {
@@ -48,17 +83,24 @@ export default function VetRegisterScreen() {
       <View style={[styles.root, { backgroundColor: colors.background }]}>
         <View style={[styles.successWrap, { paddingTop: topPad + 32, paddingBottom: botPad + 24 }]}>
           <View style={[styles.successIcon, { backgroundColor: colors.secondary }]}>
-            <Feather name="user-check" size={48} color={colors.primary} />
+            <Feather name="clock" size={48} color={colors.primary} />
           </View>
           <Text style={[styles.successTitle, { color: colors.foreground }]}>
-            Cadastro realizado!
+            Solicitação enviada!
+          </Text>
+          <Text style={[styles.successHint, { color: colors.mutedForeground }]}>
+            Um administrador vai analisar seus dados e pode entrar em contato
+            pelo telefone ou e-mail informado para confirmar a sua identidade.
+            Sua conta só será liberada depois dessa análise — tente fazer
+            login novamente em breve.
           </Text>
 
           <APCard style={[styles.idCard, { backgroundColor: colors.secondary }]}>
             <Text style={[styles.idLabel, { color: colors.mutedForeground }]}>Seu ID é:</Text>
             <Text style={[styles.idNumber, { color: colors.primary }]}>{newId}</Text>
             <Text style={[styles.idHint, { color: colors.mutedForeground }]}>
-              Guarde este ID — você precisará dele para fazer login e receber anamneses.
+              Guarde este ID — você vai precisar dele para fazer login assim
+              que o pedido for aprovado.
             </Text>
           </APCard>
 
@@ -74,11 +116,11 @@ export default function VetRegisterScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color={colors.primary} />
         </Pressable>
-        <Text style={[styles.headerTitle, { color: colors.foreground }]}>Cadastrar Médico</Text>
+        <Text style={[styles.headerTitle, { color: colors.foreground }]}>Solicitar Cadastro</Text>
         <View style={{ width: 36 }} />
       </View>
 
-      <KeyboardAwareScrollViewCompat
+      <KeyboardAwareScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: botPad + 32 }]}
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
@@ -93,6 +135,15 @@ export default function VetRegisterScreen() {
             containerStyle={styles.field}
           />
           <APInput
+            label="CRMV"
+            placeholder="Ex: SP-12345"
+            value={crmv}
+            onChangeText={(t) => { setCrmv(t); setErrors((e) => ({ ...e, crmv: "", geral: "" })); }}
+            autoCapitalize="characters"
+            error={errors.crmv}
+            containerStyle={styles.field}
+          />
+          <APInput
             label="Senha"
             placeholder="••••••••"
             value={senha}
@@ -101,11 +152,35 @@ export default function VetRegisterScreen() {
             error={errors.senha}
             containerStyle={styles.field}
           />
+          <APInput
+            label="Telefone ou e-mail de contato"
+            placeholder="(11) 91234-5678 ou voce@clinica.com"
+            value={contato}
+            onChangeText={(t) => { setContato(t); setErrors((e) => ({ ...e, contato: "", geral: "" })); }}
+            autoCapitalize="none"
+            error={errors.contato}
+            containerStyle={styles.field}
+          />
+          <APInput
+            label="Local de trabalho"
+            placeholder="Clínica ou hospital onde atua"
+            value={localTrabalho}
+            onChangeText={(t) => { setLocalTrabalho(t); setErrors((e) => ({ ...e, localTrabalho: "", geral: "" })); }}
+            error={errors.localTrabalho}
+            containerStyle={styles.field}
+          />
+          <Text style={[styles.contatoHint, { color: colors.mutedForeground }]}>
+            O administrador usa o contato e o local de trabalho para confirmar
+            quem você é antes de aprovar o pedido.
+          </Text>
+          {!!errors.geral && (
+            <Text style={[styles.erroGeral, { color: colors.danger }]}>{errors.geral}</Text>
+          )}
         </APCard>
 
-        <APButton title="Cadastrar" onPress={handleCadastrar} loading={loading} />
+        <APButton title="Enviar solicitação" onPress={handleCadastrar} loading={loading} />
         <APButton title="Já tenho cadastro" onPress={() => router.replace("/vet/login")} variant="ghost" />
-      </KeyboardAwareScrollViewCompat>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -123,6 +198,24 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: "PlayfairDisplay_700Bold", fontSize: 18 },
   scroll: { paddingHorizontal: 20, paddingTop: 20, gap: 16 },
   field: { marginBottom: 14 },
+  contatoHint: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: 4,
+  },
+  erroGeral: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 13,
+    marginTop: 2,
+  },
+  successHint: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 13,
+    textAlign: "center",
+    lineHeight: 19,
+    marginTop: -8,
+  },
   successWrap: {
     flex: 1,
     alignItems: "center",

@@ -1,15 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import {
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { KeyboardAwareScrollViewCompat } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { AngelPawLogo } from "@/components/AngelPawLogo";
 import { APButton } from "@/components/APButton";
@@ -38,20 +32,27 @@ export default function VetLoginScreen() {
     }
     setError("");
     setLoading(true);
-    const ok = await loginMedico(id.trim(), senha);
+    const resultado = await loginMedico(id.trim(), senha);
     setLoading(false);
-    if (ok) {
+
+    if (resultado.status === "ok") {
       router.replace("/vet/menu");
-    } else {
-      setError("ID ou senha inválidos");
+      return;
     }
+
+    const mensagens: Record<string, string> = {
+      invalido: "ID ou senha inválidos",
+      pendente: "Seu pedido ainda está em análise pelo administrador. Tente novamente mais tarde.",
+      rejeitado: "Seu pedido não foi aprovado. Você pode enviar uma nova solicitação com os dados corretos ou falar com o administrador.",
+    };
+    setError(mensagens[resultado.status] ?? "Não foi possível entrar.");
   }
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={[styles.wave, { backgroundColor: colors.secondary }]} />
 
-      <KeyboardAwareScrollViewCompat
+      <KeyboardAwareScrollView
         contentContainerStyle={[
           styles.scroll,
           { paddingTop: topPad + 32, paddingBottom: botPad + 24 },
@@ -61,11 +62,13 @@ export default function VetLoginScreen() {
       >
         <Pressable onPress={() => router.back()} style={styles.backRow}>
           <Feather name="arrow-left" size={18} color={colors.primary} />
-          <Text style={[styles.backText, { color: colors.primary }]}>Voltar</Text>
+          <Text style={[styles.backText, { color: colors.primary }]}>
+            Voltar
+          </Text>
         </Pressable>
 
         <View style={styles.logoWrap}>
-          <AngelPawLogo size="medium" showText />
+          <AngelPawLogo size="medium" showText dividerWithHeart />
         </View>
 
         <Text style={[styles.screenTitle, { color: colors.foreground }]}>
@@ -77,7 +80,10 @@ export default function VetLoginScreen() {
             label="ID do Médico"
             placeholder="Ex: 1"
             value={id}
-            onChangeText={(t) => { setId(t); setError(""); }}
+            onChangeText={(t) => {
+              setId(t);
+              setError("");
+            }}
             keyboardType="numeric"
             containerStyle={styles.field}
           />
@@ -87,34 +93,60 @@ export default function VetLoginScreen() {
               label="Senha"
               placeholder="••••••••"
               value={senha}
-              onChangeText={(t) => { setSenha(t); setError(""); }}
+              onChangeText={(t) => {
+                setSenha(t);
+                setError("");
+              }}
               secureTextEntry={!showSenha}
               containerStyle={styles.senhaInput}
             />
             <Pressable
               onPress={() => setShowSenha((v) => !v)}
-              style={[styles.eyeBtn, { backgroundColor: colors.muted, borderRadius: 12 }]}
+              style={[
+                styles.eyeBtn,
+                { backgroundColor: colors.muted, borderRadius: 12 },
+              ]}
             >
-              <Feather name={showSenha ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} />
+              <Feather
+                name={showSenha ? "eye-off" : "eye"}
+                size={18}
+                color={colors.mutedForeground}
+              />
             </Pressable>
           </View>
 
           {error ? (
-            <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>
+            <Text style={[styles.error, { color: colors.danger }]}>
+              {error}
+            </Text>
           ) : null}
         </APCard>
 
         <APButton title="Entrar" onPress={handleLogin} loading={loading} />
 
-        <Pressable onPress={() => router.push("/vet/register")} style={styles.registerRow}>
-          <Text style={[styles.registerText, { color: colors.mutedForeground }]}>
-            Ainda não tem cadastro?{" "}
+        <Pressable
+          onPress={() => router.push("/vet/register")}
+          style={styles.registerRow}
+        >
+          <Text
+            style={[styles.registerText, { color: colors.mutedForeground }]}
+          >
+            Ainda não tem conta?{" "}
           </Text>
           <Text style={[styles.registerLink, { color: colors.primary }]}>
-            Cadastrar médico
+            Solicitar cadastro
           </Text>
         </Pressable>
-      </KeyboardAwareScrollViewCompat>
+
+        <Pressable
+          onPress={() => router.push("/admin/login")}
+          style={styles.adminLink}
+        >
+          <Text style={[styles.adminLinkText, { color: colors.mutedForeground }]}>
+            Acesso administrativo
+          </Text>
+        </Pressable>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -151,7 +183,17 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   error: { fontFamily: "Poppins_400Regular", fontSize: 13, marginTop: 4 },
-  registerRow: { flexDirection: "row", justifyContent: "center", flexWrap: "wrap" },
+  registerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
   registerText: { fontFamily: "Poppins_400Regular", fontSize: 14 },
   registerLink: { fontFamily: "Poppins_600SemiBold", fontSize: 14 },
+  adminLink: { alignItems: "center", marginTop: 4 },
+  adminLinkText: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 11,
+    opacity: 0.7,
+  },
 });

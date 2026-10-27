@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -78,7 +78,9 @@ export default function SummaryScreen() {
       <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.secondary }]}>
         <View style={{ width: 36 }} />
         <Text style={[styles.headerTitle, { color: colors.foreground }]}>Resumo do Diagnóstico</Text>
-        <View style={{ width: 36 }} />
+        <View style={[styles.pawBadge, { backgroundColor: colors.primary + "18" }]}>
+          <MaterialCommunityIcons name="paw" size={16} color={colors.primary} />
+        </View>
       </View>
 
       <ScrollView
@@ -115,7 +117,15 @@ export default function SummaryScreen() {
           </Text>
         </APCard>
 
-        <APCard>
+        <APCard
+          style={[
+            styles.urgCard,
+            {
+              backgroundColor: urgenciaColor + "12",
+              borderColor: urgenciaColor + "40",
+            },
+          ]}
+        >
           <View style={styles.urgRow}>
             <Feather name="alert-triangle" size={18} color={urgenciaColor} />
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Urgência</Text>
@@ -227,6 +237,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginBottom: 6,
+  },
+  urgCard: {
+    borderWidth: 1.5,
+  },
+  pawBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
   signalRow: {
     flexDirection: "row",

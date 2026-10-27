@@ -28,30 +28,45 @@ function ResultCard({ ficha }: { ficha: Anamnese }) {
       : colors.success;
 
   return (
-    <APCard padding={14}>
-      <View style={styles.resultHeader}>
-        <View style={styles.resultInfo}>
-          <Text style={[styles.resultNome, { color: colors.foreground }]}>{ficha.dados.nome}</Text>
-          <Text style={[styles.resultDetail, { color: colors.mutedForeground }]}>
-            {ficha.dados.especie === "cao" ? "Cão" : "Gato"} · {ficha.dados.raca}
+    <Pressable
+      onPress={() =>
+        router.push({ pathname: "/vet/anamneses", params: { highlightId: ficha.id } })
+      }
+      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+    >
+      <APCard padding={14}>
+        <View style={styles.resultHeader}>
+          <View style={styles.resultInfo}>
+            <View style={styles.resultNomeRow}>
+              <Text style={[styles.resultNome, { color: colors.foreground }]}>{ficha.dados.nome}</Text>
+              {ficha.codigoPaciente && (
+                <Text style={[styles.resultCodigo, { color: colors.primary }]}>
+                  #{ficha.codigoPaciente}
+                </Text>
+              )}
+            </View>
+            <Text style={[styles.resultDetail, { color: colors.mutedForeground }]}>
+              {ficha.dados.especie === "cao" ? "Cão" : "Gato"} · {ficha.dados.raca}
+            </Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor + "22" }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>{ficha.status}</Text>
+          </View>
+        </View>
+        <View style={styles.resultFooter}>
+          <Text style={[styles.probText, { color: probColor }]}>
+            {ficha.resultado.probabilidade}%
           </Text>
+          <Text style={[styles.probLabel, { color: colors.mutedForeground }]}>
+            {ficha.resultado.doenca}
+          </Text>
+          <Text style={[styles.dateText, { color: colors.mutedForeground }]}>
+            {ficha.dataEnvio}
+          </Text>
+          <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: statusColor + "22" }]}>
-          <Text style={[styles.statusText, { color: statusColor }]}>{ficha.status}</Text>
-        </View>
-      </View>
-      <View style={styles.resultFooter}>
-        <Text style={[styles.probText, { color: probColor }]}>
-          {ficha.resultado.probabilidade}%
-        </Text>
-        <Text style={[styles.probLabel, { color: colors.mutedForeground }]}>
-          {ficha.resultado.doenca}
-        </Text>
-        <Text style={[styles.dateText, { color: colors.mutedForeground }]}>
-          {ficha.dataEnvio}
-        </Text>
-      </View>
-    </APCard>
+      </APCard>
+    </Pressable>
   );
 }
 
@@ -266,7 +281,9 @@ const styles = StyleSheet.create({
   resultCount: { fontFamily: "Poppins_500Medium", fontSize: 13 },
   resultHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 },
   resultInfo: { flex: 1 },
+  resultNomeRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   resultNome: { fontFamily: "Poppins_600SemiBold", fontSize: 14 },
+  resultCodigo: { fontFamily: "Poppins_500Medium", fontSize: 10 },
   resultDetail: { fontFamily: "Poppins_400Regular", fontSize: 12, marginTop: 2 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 },
   statusText: { fontFamily: "Poppins_600SemiBold", fontSize: 11 },
