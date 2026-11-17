@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -35,9 +35,16 @@ export default function ReviewScreen() {
   );
   const [success, setSuccess] = useState(false);
 
+  // Antes isso navegava DURANTE o render (efeito colateral que o React não
+  // espera). Agora só acontece quando esta tela está em foco.
+  useFocusEffect(
+    useCallback(() => {
+      if (!petDados) router.replace("/tutor/identification");
+    }, [petDados])
+  );
+
   if (!petDados) {
-    router.replace("/tutor/identification");
-    return null;
+    return <View style={[styles.root, { backgroundColor: colors.background }]} />;
   }
 
   const vacLabel = { C: "Completa", I: "Incompleta", D: "Desconhecida" }[

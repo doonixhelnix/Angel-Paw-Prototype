@@ -67,8 +67,11 @@ export default function SendScreen() {
   }
 
   function handleFinalizar() {
-    resetSessionTutor();
+    // Fecha o fluxo inteiro do tutor de uma vez, em vez de empilhar a home por
+    // cima das telas antigas (que, sem dados, ficariam em branco ao voltar).
+    if (router.canDismiss()) router.dismissAll();
     router.replace("/");
+    resetSessionTutor();
   }
 
   if (enviado) {

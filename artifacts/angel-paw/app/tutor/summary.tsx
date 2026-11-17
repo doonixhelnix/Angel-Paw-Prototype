@@ -1,6 +1,6 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback } from "react";
 import {
   Platform,
   Pressable,
@@ -37,9 +37,15 @@ export default function SummaryScreen() {
   const { sessionTutor, resetSessionTutor } = useApp();
   const { resultado, petDados } = sessionTutor;
 
+  // Só redireciona quando ESTA tela está em foco (ver comentário no questionnaire).
+  useFocusEffect(
+    useCallback(() => {
+      if (!resultado || !petDados) router.replace("/tutor/identification");
+    }, [resultado, petDados])
+  );
+
   if (!resultado || !petDados) {
-    router.replace("/tutor/identification");
-    return null;
+    return <View style={[styles.root, { backgroundColor: colors.background }]} />;
   }
 
   const confiancaColor =
@@ -69,8 +75,11 @@ export default function SummaryScreen() {
   }
 
   function handleCancelar() {
-    resetSessionTutor();
+    // Fecha o fluxo inteiro do tutor de uma vez, em vez de empilhar a home por
+    // cima das telas antigas (que, sem dados, ficariam em branco ao voltar).
+    if (router.canDismiss()) router.dismissAll();
     router.replace("/");
+    resetSessionTutor();
   }
 
   return (

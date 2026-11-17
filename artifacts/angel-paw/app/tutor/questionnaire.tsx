@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Image,
   Platform,
@@ -87,9 +87,18 @@ export default function QuestionnaireScreen() {
     router.push("/tutor/summary");
   }
 
+  // Só redireciona quando ESTA tela está em foco. Telas que ficaram empilhadas
+  // por baixo (ex: depois de enviar a anamnese) não podem navegar sozinhas
+  // quando a sessão do tutor é limpa.
+  useFocusEffect(
+    useCallback(() => {
+      if (!petDados) router.replace("/tutor/identification");
+    }, [petDados])
+  );
+
   if (!petDados) {
-    router.replace("/tutor/identification");
-    return null;
+    // Fundo da própria tela (e não null, que deixa o cinza padrão da navegação).
+    return <View style={[styles.root, { backgroundColor: colors.background }]} />;
   }
 
   const isSexo = perguntaAtual.tipo === "sexo";
