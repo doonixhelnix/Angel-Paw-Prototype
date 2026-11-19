@@ -51,10 +51,16 @@ export default function VetMenuScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const { logoutMedico, currentVetId, medicos, getAnamnesesPorMedico } = useApp();
+  const { logoutMedico, currentVetId, medicos, getAnamnesesPorMedico, definirDisponibilidadeMedico } = useApp();
 
   const medico = currentVetId ? medicos[currentVetId] : null;
   const anamnesesCount = currentVetId ? getAnamnesesPorMedico(currentVetId).length : 0;
+  const disponibilidadeAtual = medico?.disponibilidade ?? "Inativo";
+  const disponibilidadeOpcoes = [
+    { valor: "Ativo" as const, cor: colors.success, icone: "check-circle" as const },
+    { valor: "Ocupado" as const, cor: colors.warning, icone: "clock" as const },
+    { valor: "Inativo" as const, cor: colors.mutedForeground, icone: "minus-circle" as const },
+  ];
 
   function handleSair() {
     logoutMedico();
@@ -129,6 +135,35 @@ export default function VetMenuScreen() {
         </View>
       </View>
 
+      <View style={[styles.availabilityCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={styles.availabilityHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.availabilityTitle, { color: colors.foreground }]}>Disponibilidade para receber anamneses</Text>
+            <Text style={[styles.availabilitySubtitle, { color: colors.mutedForeground }]}>Altere manualmente quando sua disponibilidade mudar</Text>
+          </View>
+          <View style={[styles.currentStatusBadge, { backgroundColor: (disponibilidadeOpcoes.find((o) => o.valor === disponibilidadeAtual)?.cor ?? colors.mutedForeground) + "20" }]}>
+            <Text style={[styles.currentStatusText, { color: disponibilidadeOpcoes.find((o) => o.valor === disponibilidadeAtual)?.cor ?? colors.mutedForeground }]}>{disponibilidadeAtual}</Text>
+          </View>
+        </View>
+        <View style={styles.availabilityOptions}>
+          {disponibilidadeOpcoes.map((opcao) => {
+            const selecionado = disponibilidadeAtual === opcao.valor;
+            return (
+              <Pressable
+                key={opcao.valor}
+                accessibilityRole="button"
+                accessibilityState={{ selected: selecionado }}
+                onPress={() => { void definirDisponibilidadeMedico(opcao.valor); }}
+                style={[styles.availabilityOption, { borderColor: selecionado ? opcao.cor : colors.border, backgroundColor: selecionado ? opcao.cor + "18" : colors.background }]}
+              >
+                <Feather name={opcao.icone} size={15} color={opcao.cor} />
+                <Text style={[styles.availabilityOptionText, { color: selecionado ? opcao.cor : colors.foreground }]}>{opcao.valor}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
       <View style={[styles.statsBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.statItem}>
           <Text style={[styles.statNumber, { color: colors.primary }]}>{anamnesesCount}</Text>
@@ -187,6 +222,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  availabilityCard: {
+    marginHorizontal: 20,
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 12,
+  },
+  availabilityHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
+  availabilityTitle: { fontFamily: "Poppins_600SemiBold", fontSize: 13 },
+  availabilitySubtitle: { fontFamily: "Poppins_400Regular", fontSize: 10, marginTop: 2 },
+  currentStatusBadge: { paddingHorizontal: 9, paddingVertical: 5, borderRadius: 20 },
+  currentStatusText: { fontFamily: "Poppins_600SemiBold", fontSize: 11 },
+  availabilityOptions: { flexDirection: "row", gap: 8 },
+  availabilityOption: { flex: 1, minHeight: 38, borderWidth: 1, borderRadius: 10, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, paddingHorizontal: 5 },
+  availabilityOptionText: { fontFamily: "Poppins_600SemiBold", fontSize: 11 },
   statsBar: {
     flexDirection: "row",
     marginHorizontal: 20,
