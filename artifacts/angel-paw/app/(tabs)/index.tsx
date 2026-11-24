@@ -4,6 +4,7 @@ import React from "react";
 import {
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -63,19 +64,23 @@ function MenuCard({ icon, title, subtitle, onPress }: MenuCardProps) {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const botPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const { height: windowHeight } = useWindowDimensions();
-  const compact = windowHeight < 700;
+  const topPad = Platform.OS === "web" ? 20 : insets.top;
+  const botPad = Platform.OS === "web" ? 24 : insets.bottom;
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const compact = windowHeight < 760;
+  const narrow = windowWidth < 380;
 
-  const logoSize = compact ? 150 : 220;
+  const logoSize = compact ? (narrow ? 112 : 136) : windowWidth < 768 ? 176 : 220;
   const logoScaleValue = compact ? 1.1 : 1.35;
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={[styles.content, { paddingBottom: botPad + 16 }]}>
-        {/* A curva faz parte do bloco do logo, que absorve a variação de altura da tela */}
-        <View style={[styles.hero, { flex: compact ? 0.85 : 1.15, paddingBottom: compact ? 30 : 74 }]}>
+    <ScrollView
+      style={[styles.root, { backgroundColor: colors.background }]}
+      contentContainerStyle={[styles.content, { paddingBottom: botPad + 16 }]}
+      showsVerticalScrollIndicator={false}
+    >
+        {/* A curva acompanha a altura real do conteúdo, sem comprimir a logo ou o título */}
+        <View style={[styles.hero, { paddingBottom: compact ? 24 : 48 }]}>
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <Svg
               width="100%"
@@ -90,7 +95,7 @@ export default function HomeScreen() {
             </Svg>
           </View>
 
-          <View style={[styles.logoSection, { paddingTop: topPad + (compact ? 16 : 40) }]}>
+          <View style={[styles.logoSection, { paddingTop: topPad + (compact ? 8 : 28), gap: compact ? 12 : 18 }]}>
             <View style={[styles.logoGlowOuter, { width: logoSize, height: logoSize }]}>
               <View
                 style={[
@@ -119,8 +124,7 @@ export default function HomeScreen() {
             </View>
 
             <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
-              Assistente veterinário inteligente para{"\n"}triagem de doenças
-              em cães e gatos
+              Assistente veterinário inteligente para triagem de doenças em cães e gatos
             </Text>
           </View>
         </View>
@@ -156,21 +160,21 @@ export default function HomeScreen() {
         <Text
           style={[
             styles.footer,
-            { color: colors.mutedForeground, marginTop: compact ? 16 : 40 },
+            { color: colors.mutedForeground, marginTop: compact ? 16 : 28 },
           ]}
         >
           Aplicativo de triagem desenvolvido por Abner Augusto
         </Text>
-      </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  content: { flex: 1 },
+  content: { flexGrow: 1 },
   hero: {
     position: "relative",
+    flexGrow: 1,
     overflow: "hidden",
   },
   logoSection: {
@@ -209,6 +213,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     paddingHorizontal: 12,
+    maxWidth: 440,
+    width: "100%",
   },
   cardsWrap: {
     paddingHorizontal: 24,
